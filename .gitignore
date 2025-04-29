@@ -4,6 +4,9 @@ src/config.json
 # env dir
 /ai-resume
 
+# Resulting pdf files
+*.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
