@@ -3,6 +3,7 @@ from google.genai import types
 import json
 import tkinter as tk
 from fpdf import FPDF
+import os
 
 # Get gemini token from json file
 with open("src/config.json", "r") as file:
@@ -54,7 +55,12 @@ def generate_resume():
     pdf.add_page()
     pdf.set_font("Times", size=13)
     pdf.multi_cell(0, 10, txt=response.text)
-    pdf.output("test.pdf")
+    downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+    pdf.output(os.path.join(downloads_folder, f"{name}.pdf"))
+
+    # Update UI
+    gen_label.config(text="Done! Check your Downloads.")
+    root.update_idletasks()
 
 
 # GUI
@@ -93,7 +99,19 @@ other_label.pack()
 other_input = tk.Text(root, height=2, width=30)
 other_input.pack()
 
-gen_button = tk.Button(root, text="Generate", width=30, command=generate_resume)
+
+def update_label():
+    gen_label.config(text="Generating...")
+    gen_label.update()
+    root.update_idletasks()
+
+
+gen_label = tk.Label(root, text="Click to generate")
+gen_label.pack()
+
+gen_button = tk.Button(
+    root, text="Generate", width=30, command=lambda: [update_label(), generate_resume()]
+)
 gen_button.pack()
 
 
