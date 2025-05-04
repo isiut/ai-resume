@@ -1,4 +1,4 @@
-# ai-resume
+# AI Resume Generator built for AP CSP
 
 ## To build:
 

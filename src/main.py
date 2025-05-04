@@ -2,6 +2,7 @@ from google import genai
 from google.genai import types
 import json
 import tkinter as tk
+import tkinter.messagebox as messagebox
 from fpdf import FPDF
 import os
 
@@ -34,7 +35,7 @@ def generate_resume():
     prompt = f"""Type out a good looking resume in pdf format according to these responses to questions.
         What you are creating will be the final product. Do not include any suggestions or text other than
         the resume itself. Do not use any unicode characters such as u2013. Do not use any
-        non-text formatting or ``` pdf, just text. Use whatever text-based formatting you can. Use '-' for bullets.
+        non-text formatting, pdf designations or code blocks with ```, just text. Use whatever text-based formatting you can. Use '-' for bullets.
         Do not merely paste the responses. Add some fluff to the resume and make it super attractive.
         Add a summary and infer facts about any information below to make a solid, long resume.
         Do not comments about inferring anything, simply do it. Do not format anything to the right.
@@ -45,29 +46,37 @@ def generate_resume():
         Skills: '{skills}'
         Other info (put this wherever is best): '{other}'"""
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001", contents=prompt
-    )
-    print(response.text)
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-001", contents=prompt
+        )
+        print(response.text)
+    except:
+        messagebox.showerror(
+            "Error", "An error occurred while getting data from Google Gemini."
+        )
+    else:
+        gen_label.config(text="Creating PDF ...")
+        root.update_idletasks()
 
-    # Create PDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Times", size=13)
-    pdf.multi_cell(0, 10, txt=response.text)
-    downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
-    pdf.output(os.path.join(downloads_folder, f"{name}.pdf"))
-
-    # Update UI
-    gen_label.config(text="Done! Check your Downloads.")
-    root.update_idletasks()
+    try:
+        # Create PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Times", size=13)
+        pdf.multi_cell(0, 10, txt=response.text)
+        downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+        pdf.output(os.path.join(downloads_folder, f"{name}.pdf"))
+    except:
+        messagebox.showerror("Error", "An error occurred while creating your PDF.")
+    else:
+        gen_label.config(text="Done! Check your Downloads.")
+        root.update_idletasks()
 
 
 # GUI
 root = tk.Tk()
-
-title = tk.Label(root, text="Quick Resume Generator")
-title.pack()
+root.title("AI Resume Generator")
 
 name_label = tk.Label(root, text="Name:")
 name_label.pack()
